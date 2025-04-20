@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+
+{% block title %}Messages - Construction Marketplace{% endblock %}
+
+{% block content %}
+<div class="bg-white rounded-xl shadow-md overflow-hidden">
+    <div class="p-6 border-b border-gray-200">
+        <h1 class="text-2xl font-bold text-secondary-800">Messages</h1>
+        <p class="text-secondary-600 mt-1">Communicate with clients and professionals</p>
+    </div>
+    
+    <div class="grid grid-cols-1 md:grid-cols-3 h-[600px]">
+        <!-- Conversations List -->
+        <div class="border-r border-gray-200 overflow-y-auto">
+            <div class="p-4 border-b border-gray-200">
+                <div class="relative">
+                    <input type="text" placeholder="Search messages..." class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <i class="fas fa-search text-gray-400"></i>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="divide-y divide-gray-200">
+                {% for conversation in conversations %}
+                <a href="{{ url_for('messaging.conversation', user_id=conversation.partner.id) }}" class="block p-4 hover:bg-gray-50 transition duration-150 {% if conversation.latest_message and not conversation.latest_message.is_read and conversation.latest_message.receiver_id == current_user.id %}bg-primary-50{% endif %}">
+                    <div class="flex items-start">
+                        <div class="w-10 h-10 bg-primary-100 text-primary-700 rounded-full flex items-center justify-center mr-3">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <div class="flex justify-between items-baseline">
+                                <h3 class="text-sm font-semibold text-secondary-800 truncate">{{ conversation.partner.email.split('@')[0] }}</h3>
+                                {% if conversation.latest_message %}
+                                <span class="text-xs text-secondary-500">{{ conversation.latest_message.created_at.strftime('%H:%M') }}</span>
+                                {% endif %}
+                            </div>
+                            {% if conversation.latest_message %}
+                            <p class="text-sm text-secondary-600 truncate {% if not conversation.latest_message.is_read and conversation.latest_message.receiver_id == current_user.id %}font-semibold{% endif %}">
+                                {% if conversation.latest_message.sender_id == current_user.id %}
+                                <span class="text-secondary-400">You: </span>
+                                {% endif %}
+                                {{ conversation.latest_message.content }}
+                            </p>
+                            {% else %}
+                            <p class="text-sm text-secondary-500 italic">No messages yet</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </a>
+                {% else %}
+                <div class="p-6 text-center">
+                    <p class="text-secondary-500">No conversations yet.</p>
+                    <p class="text-sm text-secondary-500 mt-1">Start by messaging a client or professional!</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        
+        <!-- Empty State / Select Conversation -->
+        <div class="col-span-2 flex items-center justify-center bg-gray-50">
+            <div class="text-center p-6">
+                <div class="w-16 h-16 bg-primary-100 text-primary-700 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-comments text-2xl"></i>
+                </div>
+                <h2 class="text-xl font-semibold text-secondary-800 mb-2">Your Messages</h2>
+                <p class="text-secondary-600 mb-4">Select a conversation to view messages or start a new one.</p>
+                {% if current_user.role == 'client' %}
+                <a href="{{ url_for('jobs.index') }}" class="inline-block bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-md font-medium transition duration-200">
+                    <i class="fas fa-search mr-1"></i> Find Professionals
+                </a>
+                {% else %}
+                <a href="{{ url_for('jobs.index') }}" class="inline-block bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-md font-medium transition duration-200">
+                    <i class="fas fa-search mr-1"></i> Browse Jobs
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

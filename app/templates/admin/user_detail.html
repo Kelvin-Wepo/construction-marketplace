@@ -1,0 +1,350 @@
+{% extends "base.html" %}
+
+{% block title %}User Details - Construction Marketplace{% endblock %}
+
+{% block content %}
+<div class="space-y-8">
+    <!-- User Header -->
+    <div class="bg-primary-700 text-white rounded-xl overflow-hidden shadow-xl">
+        <div class="p-8">
+            <div class="flex flex-col md:flex-row items-center">
+                <div class="w-24 h-24 bg-white text-primary-700 rounded-full flex items-center justify-center mb-4 md:mb-0 md:mr-6">
+                    <i class="fas fa-user text-4xl"></i>
+                </div>
+                <div class="text-center md:text-left">
+                    <h1 class="text-3xl font-bold">{{ user.email.split('@')[0] }}</h1>
+                    <p class="text-primary-100 text-lg">{{ user.role.capitalize() }}</p>
+                    
+                    <div class="mt-4 flex flex-wrap justify-center md:justify-start gap-4">
+                        <div class="bg-primary-800 bg-opacity-50 px-4 py-2 rounded-lg">
+                            <p class="text-sm text-primary-100">Member Since</p>
+                            <p class="font-semibold">{{ user.created_at.strftime('%B %d, %Y') }}</p>
+                        </div>
+                        
+                        <div class="bg-primary-800 bg-opacity-50 px-4 py-2 rounded-lg">
+                            <p class="text-sm text-primary-100">Status</p>
+                            <p class="font-semibold">
+                                {% if user.is_verified %}
+                                    Verified
+                                {% else %}
+                                    Unverified
+                                {% endif %}
+                            </p>
+                        </div>
+                        
+                        <div class="bg-primary-800 bg-opacity-50 px-4 py-2 rounded-lg">
+                            <p class="text-sm text-primary-100">
+                                {% if user.role == 'client' %}
+                                    Jobs Posted
+                                {% else %}
+                                    Bids Placed
+                                {% endif %}
+                            </p>
+                            <p class="font-semibold">
+                                {% if user.role == 'client' %}
+                                    {{ jobs|length }}
+                                {% else %}
+                                    {{ bids|length }}
+                                {% endif %}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Admin Actions -->
+    <div class="bg-white rounded-xl shadow-md overflow-hidden">
+        <div class="p-6 border-b border-gray-200">
+            <h2 class="text-xl font-semibold text-secondary-800">Admin Actions</h2>
+        </div>
+        <div class="p-6 flex flex-wrap gap-3">
+            <a href="{{ url_for('admin.message_user', user_id=user.id) }}" class="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-md font-medium transition duration-200">
+                <i class="fas fa-envelope mr-2"></i> Send Message
+            </a>
+            
+            {% if user.is_verified %}
+            <form method="POST" action="{{ url_for('admin.revoke_access', user_id=user.id) }}" class="inline">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button type="submit" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md font-medium transition duration-200" onclick="return confirm('Are you sure you want to revoke access for this user?')">
+                    <i class="fas fa-ban mr-2"></i> Revoke Access
+                </button>
+            </form>
+            {% else %}
+            <button class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md font-medium transition duration-200">
+                <i class="fas fa-check-circle mr-2"></i> Verify User
+            </button>
+            {% endif %}
+            
+            <a href="{{ url_for('admin.users') }}" class="bg-gray-200 hover:bg-gray-300 text-secondary-800 px-4 py-2 rounded-md font-medium transition duration-200">
+                <i class="fas fa-arrow-left mr-2"></i> Back to Users
+            </a>
+        </div>
+    </div>
+    
+    <!-- User Details -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- Left Column -->
+        <div class="lg:col-span-2 space-y-8">
+            <!-- Contact Information -->
+            <div class="bg-white rounded-xl shadow-md overflow-hidden">
+                <div class="p-6 border-b border-gray-200">
+                    <h2 class="text-xl font-semibold text-secondary-800">Contact Information</h2>
+                </div>
+                <div class="p-6">
+                    <div class="space-y-4">
+                        <div>
+                            <h3 class="text-sm font-medium text-secondary-500 mb-1">Email</h3>
+                            <p class="text-secondary-800">{{ user.email }}</p>
+                        </div>
+                        <div>
+                            <h3 class="text-sm font-medium text-secondary-500 mb-1">Phone</h3>
+                            <p class="text-secondary-800">{{ user.phone_number }}</p>
+                        </div>
+                        <div>
+                            <h3 class="text-sm font-medium text-secondary-500 mb-1">Role</h3>
+                            <p class="text-secondary-800">{{ user.role.capitalize() }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Activity -->
+            {% if user.role == 'client' %}
+                <!-- Jobs Posted -->
+                <div class="bg-white rounded-xl shadow-md overflow-hidden">
+                    <div class="p-6 border-b border-gray-200">
+                        <h2 class="text-xl font-semibold text-secondary-800">Jobs Posted</h2>
+                    </div>
+                    
+                    <div class="divide-y divide-gray-200">
+                        {% for job in jobs %}
+                        <div class="p-6 hover:bg-gray-50 transition duration-150">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <h3 class="text-lg font-semibold text-secondary-800">{{ job.title }}</h3>
+                                    <div class="flex items-center mt-1 text-sm">
+                                        <span class="bg-primary-100 text-primary-800 px-2 py-0.5 rounded-full">{{ job.service_type }}</span>
+                                        <span class="mx-2 text-secondary-400">•</span>
+                                        <span class="text-secondary-500"><i class="far fa-clock mr-1"></i> {{ job.duration_days }} days</span>
+                                        <span class="mx-2 text-secondary-400">•</span>
+                                        <span class="text-secondary-500"><i class="fas fa-dollar-sign mr-1"></i> ${{ job.budget }}</span>
+                                    </div>
+                                </div>
+                                <div>
+                                    {% if job.status == 'open' %}
+                                        <span class="bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-0.5 rounded-full">Open</span>
+                                    {% elif job.status == 'in_progress' %}
+                                        <span class="bg-yellow-100 text-yellow-800 text-xs font-semibold px-2.5 py-0.5 rounded-full">In Progress</span>
+                                    {% elif job.status == 'completed' %}
+                                        <span class="bg-green-100 text-green-800 text-xs font-semibold px-2.5 py-0.5 rounded-full">Completed</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            
+                            <div class="mt-4 flex justify-between items-center">
+                                <div class="text-sm text-secondary-500">
+                                    <i class="fas fa-calendar-alt mr-1"></i> Posted on {{ job.created_at.strftime('%b %d, %Y') }}
+                                </div>
+                                <a href="{{ url_for('admin.job_detail', job_id=job.id) }}" class="text-primary-600 hover:text-primary-700 text-sm font-medium">
+                                    View Details
+                                </a>
+                            </div>
+                        </div>
+                        {% else %}
+                        <div class="p-6 text-center">
+                            <p class="text-secondary-500">This user hasn't posted any jobs yet.</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% else %}
+                <!-- Bids Placed -->
+                <div class="bg-white rounded-xl shadow-md overflow-hidden">
+                    <div class="p-6 border-b border-gray-200">
+                        <h2 class="text-xl font-semibold text-secondary-800">Bids Placed</h2>
+                    </div>
+                    
+                    <div class="divide-y divide-gray-200">
+                        {% for bid in bids %}
+                        <div class="p-6 hover:bg-gray-50 transition duration-150">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <h3 class="text-lg font-semibold text-secondary-800">{{ bid.job.title }}</h3>
+                                    <div class="flex items-center mt-1 text-sm">
+                                        <span class="bg-primary-100 text-primary-800 px-2 py-0.5 rounded-full">{{ bid.job.service_type }}</span>
+                                        <span class="mx-2 text-secondary-400">•</span>
+                                        <span class="text-secondary-500"><i class="fas fa-dollar-sign mr-1"></i> Bid: ${{ bid.amount }}</span>
+                                        <span class="mx-2 text-secondary-400">•</span>
+                                        <span class="text-secondary-500"><i class="far fa-clock mr-1"></i> {{ bid.estimated_days }} days</span>
+                                    </div>
+                                </div>
+                                <div>
+                                    {% if bid.status == 'pending' %}
+                                        <span class="bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-0.5 rounded-full">Pending</span>
+                                    {% elif bid.status == 'accepted' %}
+                                        <span class="bg-green-100 text-green-800 text-xs font-semibold px-2.5 py-0.5 rounded-full">Accepted</span>
+                                    {% elif bid.status == 'rejected' %}
+                                        <span class="bg-red-100 text-red-800 text-xs font-semibold px-2.5 py-0.5 rounded-full">Rejected</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            
+                            <div class="mt-4 flex justify-between items-center">
+                                <div class="text-sm text-secondary-500">
+                                    <i class="fas fa-calendar-alt mr-1"></i> Bid on {{ bid.created_at.strftime('%b %d, %Y') }}
+                                </div>
+                                <a href="{{ url_for('admin.job_detail', job_id=bid.job_id) }}" class="text-primary-600 hover:text-primary-700 text-sm font-medium">
+                                    View Job
+                                </a>
+                            </div>
+                        </div>
+                        {% else %}
+                        <div class="p-6 text-center">
+                            <p class="text-secondary-500">This user hasn't placed any bids yet.</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endif %}
+            
+            <!-- Reviews -->
+            <div class="bg-white rounded-xl shadow-md overflow-hidden">
+                <div class="p-6 border-b border-gray-200">
+                    <h2 class="text-xl font-semibold text-secondary-800">Reviews</h2>
+                </div>
+                
+                <div class="divide-y divide-gray-200">
+                    {% for review in reviews_received %}
+                    <div class="p-6">
+                        <div class="flex items-start">
+                            <div class="flex-shrink-0">
+                                <div class="w-10 h-10 bg-primary-100 text-primary-700 rounded-full flex items-center justify-center">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                            </div>
+                            <div class="ml-4 flex-1">
+                                <div class="flex items-center justify-between">
+                                    <h3 class="text-sm font-semibold text-secondary-800">{{ review.reviewer.email.split('@')[0] }}</h3>
+                                    <p class="text-sm text-secondary-500">{{ review.created_at.strftime('%b %d, %Y') }}</p>
+                                </div>
+                                <div class="flex text-yellow-400 mt-1">
+                                    {% for i in range(5) %}
+                                        {% if i < review.rating %}
+                                            <i class="fas fa-star"></i>
+                                        {% else %}
+                                            <i class="far fa-star"></i>
+                                        {% endif %}
+                                    {% endfor %}
+                                </div>
+                                <p class="mt-2 text-secondary-600">{{ review.comment }}</p>
+                                <p class="mt-1 text-sm text-secondary-500">
+                                    <i class="fas fa-clipboard-check mr-1"></i> {{ review.job.title }}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="p-6 text-center">
+                        <p class="text-secondary-500">No reviews yet.</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Right Column -->
+        <div class="space-y-8">
+            <!-- Referral Information -->
+            <div class="bg-white rounded-xl shadow-md overflow-hidden">
+                <div class="p-6 border-b border-gray-200">
+                    <h3 class="text-lg font-semibold text-secondary-800">Referral Information</h3>
+                </div>
+                
+                <div class="p-6">
+                    <div class="mb-4">
+                        <h4 class="text-sm font-medium text-secondary-500 mb-1">Referral Code</h4>
+                        <div class="bg-gray-100 p-3 rounded-md">
+                            <span class="font-mono text-secondary-800 font-medium">{{ user.referral_code }}</span>
+                        </div>
+                    </div>
+                    
+                    {% if user.referred_by %}
+                    <div class="mb-4">
+                        <h4 class="text-sm font-medium text-secondary-500 mb-1">Referred By</h4>
+                        <div class="flex items-center">
+                            <div class="w-8 h-8 bg-primary-100 text-primary-700 rounded-full flex items-center justify-center mr-2">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            <a href="{{ url_for('admin.user_detail', user_id=user.referred_by) }}" class="text-primary-600 hover:text-primary-700">
+                                {{ User.query.get(user.referred_by).email.split('@')[0] }}
+                            </a>
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    <div>
+                        <h4 class="text-sm font-medium text-secondary-500 mb-2">Referrals</h4>
+                        <div class="divide-y divide-gray-200">
+                            {% for referral in referrals %}
+                            <div class="py-2 flex items-center justify-between">
+                                <div class="flex items-center">
+                                    <div class="w-8 h-8 bg-primary-100 text-primary-700 rounded-full flex items-center justify-center mr-2">
+                                        <i class="fas fa-user"></i>
+                                    </div>
+                                    <a href="{{ url_for('admin.user_detail', user_id=referral.referred_id) }}" class="text-primary-600 hover:text-primary-700">
+                                        {{ referral.referred.email.split('@')[0] }}
+                                    </a>
+                                </div>
+                                {% if referral.reward_given %}
+                                    <span class="bg-green-100 text-green-800 text-xs font-semibold px-2.5 py-0.5 rounded-full">Rewarded</span>
+                                {% else %}
+                                    <span class="bg-yellow-100 text-yellow-800 text-xs font-semibold px-2.5 py-0.5 rounded-full">Pending</span>
+                                {% endif %}
+                            </div>
+                            {% else %}
+                            <p class="text-secondary-500 text-sm py-2">No referrals yet.</p>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- System Information -->
+            <div class="bg-white rounded-xl shadow-md overflow-hidden">
+                <div class="p-6 border-b border-gray-200">
+                    <h3 class="text-lg font-semibold text-secondary-800">System Information</h3>
+                </div>
+                
+                <div class="p-6">
+                    <div class="space-y-4">
+                        <div>
+                            <h4 class="text-sm font-medium text-secondary-500 mb-1">User ID</h4>
+                            <p class="text-secondary-800">{{ user.id }}</p>
+                        </div>
+                        <div>
+                            <h4 class="text-sm font-medium text-secondary-500 mb-1">Account Created</h4>
+                            <p class="text-secondary-800">{{ user.created_at.strftime('%B %d, %Y at %H:%M') }}</p>
+                        </div>
+                        <div>
+                            <h4 class="text-sm font-medium text-secondary-500 mb-1">Verification Status</h4>
+                            <p class="text-secondary-800">
+                                {% if user.is_verified %}
+                                    <span class="text-green-600"><i class="fas fa-check-circle mr-1"></i> Verified</span>
+                                {% else %}
+                                    <span class="text-yellow-600"><i class="fas fa-exclamation-circle mr-1"></i> Not Verified</span>
+                                {% endif %}
+                            </p>
+                        </div>
+                        <div>
+                            <h4 class="text-sm font-medium text-secondary-500 mb-1">Last Activity</h4>
+                            <p class="text-secondary-800">Today at 14:35</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,200 @@
+{% extends "base.html" %}
+
+{% block title %}Profile - Construction Marketplace{% endblock %}
+
+{% block content %}
+<div class="space-y-8">
+    <!-- Profile Header -->
+    <div class="bg-primary-700 text-white rounded-xl overflow-hidden shadow-xl">
+        <div class="p-8">
+            <div class="flex flex-col md:flex-row items-center">
+                <div class="w-24 h-24 bg-white text-primary-700 rounded-full flex items-center justify-center mb-4 md:mb-0 md:mr-6">
+                    <i class="fas fa-user text-4xl"></i>
+                </div>
+                <div class="text-center md:text-left">
+                    <h1 class="text-3xl font-bold">{{ current_user.email.split('@')[0] }}</h1>
+                    <p class="text-primary-100 text-lg">{{ current_user.role.capitalize() }}</p>
+                    
+                    <div class="mt-4 flex flex-wrap justify-center md:justify-start gap-4">
+                        <div class="bg-primary-800 bg-opacity-50 px-4 py-2 rounded-lg">
+                            <p class="text-sm text-primary-100">Member Since</p>
+                            <p class="font-semibold">{{ current_user.created_at.strftime('%B %d, %Y') }}</p>
+                        </div>
+                        
+                        <div class="bg-primary-800 bg-opacity-50 px-4 py-2 rounded-lg">
+                            <p class="text-sm text-primary-100">Average Rating</p>
+                            <div class="flex items-center">
+                                <div class="flex text-yellow-400">
+                                    {% set avg_rating = reviews|map(attribute='rating')|sum / reviews|length if reviews else 0 %}
+                                    {% for i in range(5) %}
+                                        {% if i < avg_rating|int %}
+                                            <i class="fas fa-star"></i>
+                                        {% elif i < avg_rating|round(0, 'ceil') and (avg_rating % 1) > 0 %}
+                                            <i class="fas fa-star-half-alt"></i>
+                                        {% else %}
+                                            <i class="far fa-star"></i>
+                                        {% endif %}
+                                    {% endfor %}
+                                </div>
+                                <span class="ml-1 font-semibold">{{ "%.1f"|format(avg_rating) }}</span>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-primary-800 bg-opacity-50 px-4 py-2 rounded-lg">
+                            <p class="text-sm text-primary-100">
+                                {% if current_user.role == 'client' %}
+                                    Jobs Posted
+                                {% else %}
+                                    Jobs Completed
+                                {% endif %}
+                            </p>
+                            <p class="font-semibold">{{ jobs|default([])|length }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Profile Content -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- Left Column -->
+        <div class="lg:col-span-2 space-y-8">
+            <!-- About Section -->
+            <div class="bg-white rounded-xl shadow-md overflow-hidden">
+                <div class="p-6 border-b border-gray-200">
+                    <h2 class="text-xl font-semibold text-secondary-800">About</h2>
+                </div>
+                <div class="p-6">
+                    <div class="space-y-4">
+                        <div>
+                            <h3 class="text-sm font-medium text-secondary-500 mb-1">Email</h3>
+                            <p class="text-secondary-800">{{ current_user.email }}</p>
+                        </div>
+                        <div>
+                            <h3 class="text-sm font-medium text-secondary-500 mb-1">Phone</h3>
+                            <p class="text-secondary-800">{{ current_user.phone_number }}</p>
+                        </div>
+                        <div>
+                            <h3 class="text-sm font-medium text-secondary-500 mb-1">Role</h3>
+                            <p class="text-secondary-800">{{ current_user.role.capitalize() }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Reviews Section -->
+            <div class="bg-white rounded-xl shadow-md overflow-hidden">
+                <div class="p-6 border-b border-gray-200">
+                    <h2 class="text-xl font-semibold text-secondary-800">Reviews</h2>
+                </div>
+                
+                <div class="divide-y divide-gray-200">
+                    {% for review in reviews %}
+                    <div class="p-6">
+                        <div class="flex items-start">
+                            <div class="flex-shrink-0">
+                                <div class="w-10 h-10 bg-primary-100 text-primary-700 rounded-full flex items-center justify-center">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                            </div>
+                            <div class="ml-4 flex-1">
+                                <div class="flex items-center justify-between">
+                                    <h3 class="text-sm font-semibold text-secondary-800">{{ review.reviewer.email.split('@')[0] }}</h3>
+                                    <p class="text-sm text-secondary-500">{{ review.created_at.strftime('%b %d, %Y') }}</p>
+                                </div>
+                                <div class="flex text-yellow-400 mt-1">
+                                    {% for i in range(5) %}
+                                        {% if i < review.rating %}
+                                            <i class="fas fa-star"></i>
+                                        {% else %}
+                                            <i class="far fa-star"></i>
+                                        {% endif %}
+                                    {% endfor %}
+                                </div>
+                                <p class="mt-2 text-secondary-600">{{ review.comment }}</p>
+                                <p class="mt-1 text-sm text-secondary-500">
+                                    <i class="fas fa-clipboard-check mr-1"></i> {{ review.job.title }}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="p-6 text-center">
+                        <p class="text-secondary-500">No reviews yet.</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Right Column -->
+        <div class="space-y-8">
+            <!-- Referral Card -->
+            <div class="bg-white rounded-xl shadow-md overflow-hidden">
+                <div class="p-6 border-b border-gray-200">
+                    <h3 class="text-lg font-semibold text-secondary-800">My Referral Code</h3>
+                </div>
+                
+                <div class="p-6">
+                    <p class="text-secondary-600 mb-4">Share your referral code with friends and earn rewards when they sign up.</p>
+                    
+                    <div class="bg-gray-100 p-3 rounded-md flex justify-between items-center mb-4">
+                        <span class="font-mono text-secondary-800 font-medium">{{ current_user.referral_code }}</span>
+                        <button class="text-primary-600 hover:text-primary-700" onclick="copyToClipboard('{{ current_user.referral_code }}')">
+                            <i class="fas fa-copy"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="flex space-x-2">
+                        <a href="https://wa.me/?text=Join%20Construction%20Marketplace%20using%20my%20referral%20code%3A%20{{ current_user.referral_code }}%20-%20{{ url_for('auth.register', _external=True) }}" target="_blank" class="flex-1 bg-green-500 hover:bg-green-600 text-white text-center py-2 rounded transition duration-200">
+                            <i class="fab fa-whatsapp mr-1"></i> WhatsApp
+                        </a>
+                        <a href="mailto:?subject=Join%20Construction%20Marketplace&body=Join%20Construction%20Marketplace%20using%20my%20referral%20code%3A%20{{ current_user.referral_code }}%20-%20{{ url_for('auth.register', _external=True) }}" class="flex-1 bg-blue-500 hover:bg-blue-600 text-white text-center py-2 rounded transition duration-200">
+                            <i class="fas fa-envelope mr-1"></i> Email
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Referrals List -->
+            <div class="bg-white rounded-xl shadow-md overflow-hidden">
+                <div class="p-6 border-b border-gray-200">
+                    <h3 class="text-lg font-semibold text-secondary-800">My Referrals</h3>
+                </div>
+                
+                <div class="divide-y divide-gray-200">
+                    {% for referral in referrals %}
+                    <div class="p-4 flex items-center justify-between">
+                        <div>
+                            <p class="font-medium text-secondary-800">{{ referral.referred.email.split('@')[0] }}</p>
+                            <p class="text-sm text-secondary-500">Joined {{ referral.created_at.strftime('%b %d, %Y') }}</p>
+                        </div>
+                        {% if referral.reward_given %}
+                            <span class="bg-green-100 text-green-800 text-xs font-semibold px-2.5 py-0.5 rounded-full">Rewarded</span>
+                        {% else %}
+                            <span class="bg-yellow-100 text-yellow-800 text-xs font-semibold px-2.5 py-0.5 rounded-full">Pending</span>
+                        {% endif %}
+                    </div>
+                    {% else %}
+                    <div class="p-6 text-center">
+                        <p class="text-secondary-500">You haven't referred anyone yet.</p>
+                        <p class="text-sm text-secondary-500 mt-1">Share your referral code to start earning rewards!</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function copyToClipboard(text) {
+    navigator.clipboard.writeText(text).then(function() {
+        alert('Referral code copied to clipboard!');
+    }, function(err) {
+        console.error('Could not copy text: ', err);
+    });
+}
+</script>
+{% endblock %}

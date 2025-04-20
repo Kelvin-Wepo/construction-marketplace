@@ -1,0 +1,695 @@
+{% extends "base.html" %}
+
+{% block title %}Documentation - Construction Marketplace{% endblock %}
+
+{% block content %}
+<div class="space-y-12 max-w-5xl mx-auto">
+    <!-- Documentation Header -->
+    <div class="bg-primary-700 text-white rounded-xl overflow-hidden shadow-xl">
+        <div class="p-8 md:p-12">
+            <h1 class="text-3xl md:text-4xl font-bold mb-4">Construction Marketplace Documentation</h1>
+            <p class="text-xl text-primary-100 mb-6">Complete guide to the platform architecture, features, and API endpoints</p>
+            <div class="flex flex-wrap gap-4">
+                <a href="#architecture" class="bg-white text-primary-700 hover:bg-gray-100 px-4 py-2 rounded-md font-medium transition duration-200">
+                    Architecture
+                </a>
+                <a href="#endpoints" class="bg-white text-primary-700 hover:bg-gray-100 px-4 py-2 rounded-md font-medium transition duration-200">
+                    API Endpoints
+                </a>
+                <a href="#user-guide" class="bg-white text-primary-700 hover:bg-gray-100 px-4 py-2 rounded-md font-medium transition duration-200">
+                    User Guide
+                </a>
+                <a href="#admin-guide" class="bg-white text-primary-700 hover:bg-gray-100 px-4 py-2 rounded-md font-medium transition duration-200">
+                    Admin Guide
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Table of Contents -->
+    <div class="bg-white rounded-xl shadow-md overflow-hidden">
+        <div class="p-6 border-b border-gray-200">
+            <h2 class="text-xl font-semibold text-secondary-800">Table of Contents</h2>
+        </div>
+        <div class="p-6">
+            <ul class="space-y-2">
+                <li>
+                    <a href="#architecture" class="text-primary-600 hover:text-primary-700 font-medium">1. Application Architecture</a>
+                    <ul class="ml-6 mt-2 space-y-1">
+                        <li><a href="#tech-stack" class="text-secondary-600 hover:text-primary-600">1.1 Technology Stack</a></li>
+                        <li><a href="#database-schema" class="text-secondary-600 hover:text-primary-600">1.2 Database Schema</a></li>
+                        <li><a href="#project-structure" class="text-secondary-600 hover:text-primary-600">1.3 Project Structure</a></li>
+                    </ul>
+                </li>
+                <li class="mt-4">
+                    <a href="#endpoints" class="text-primary-600 hover:text-primary-700 font-medium">2. API Endpoints</a>
+                    <ul class="ml-6 mt-2 space-y-1">
+                        <li><a href="#auth-endpoints" class="text-secondary-600 hover:text-primary-600">2.1 Authentication Endpoints</a></li>
+                        <li><a href="#job-endpoints" class="text-secondary-600 hover:text-primary-600">2.2 Job Endpoints</a></li>
+                        <li><a href="#messaging-endpoints" class="text-secondary-600 hover:text-primary-600">2.3 Messaging Endpoints</a></li>
+                        <li><a href="#admin-endpoints" class="text-secondary-600 hover:text-primary-600">2.4 Admin Endpoints</a></li>
+                    </ul>
+                </li>
+                <li class="mt-4">
+                    <a href="#user-guide" class="text-primary-600 hover:text-primary-700 font-medium">3. User Guide</a>
+                    <ul class="ml-6 mt-2 space-y-1">
+                        <li><a href="#client-guide" class="text-secondary-600 hover:text-primary-600">3.1 For Clients</a></li>
+                        <li><a href="#personnel-guide" class="text-secondary-600 hover:text-primary-600">3.2 For Construction Personnel</a></li>
+                    </ul>
+                </li>
+                <li class="mt-4">
+                    <a href="#admin-guide" class="text-primary-600 hover:text-primary-700 font-medium">4. Admin Guide</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Application Architecture -->
+    <div id="architecture" class="bg-white rounded-xl shadow-md overflow-hidden scroll-mt-24">
+        <div class="p-6 border-b border-gray-200">
+            <h2 class="text-2xl font-semibold text-secondary-800">1. Application Architecture</h2>
+        </div>
+        <div class="p-6 space-y-8">
+            <!-- Technology Stack -->
+            <div id="tech-stack" class="scroll-mt-24">
+                <h3 class="text-xl font-semibold text-secondary-800 mb-4">1.1 Technology Stack</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <h4 class="font-semibold text-secondary-800 mb-2">Backend</h4>
+                        <ul class="space-y-2 text-secondary-600">
+                            <li class="flex items-start">
+                                <i class="fas fa-check-circle text-primary-600 mt-1 mr-2"></i>
+                                <div>
+                                    <span class="font-medium">Flask</span> - Python web framework
+                                </div>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-check-circle text-primary-600 mt-1 mr-2"></i>
+                                <div>
+                                    <span class="font-medium">SQLAlchemy</span> - ORM for database operations
+                                </div>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-check-circle text-primary-600 mt-1 mr-2"></i>
+                                <div>
+                                    <span class="font-medium">Flask-Login</span> - User authentication
+                                </div>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-check-circle text-primary-600 mt-1 mr-2"></i>
+                                <div>
+                                    <span class="font-medium">Flask-SocketIO</span> - Real-time messaging
+                                </div>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-check-circle text-primary-600 mt-1 mr-2"></i>
+                                <div>
+                                    <span class="font-medium">Africa's Talking</span> - SMS API for notifications
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <h4 class="font-semibold text-secondary-800 mb-2">Frontend</h4>
+                        <ul class="space-y-2 text-secondary-600">
+                            <li class="flex items-start">
+                                <i class="fas fa-check-circle text-primary-600 mt-1 mr-2"></i>
+                                <div>
+                                    <span class="font-medium">Jinja2</span> - Template engine
+                                </div>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-check-circle text-primary-600 mt-1 mr-2"></i>
+                                <div>
+                                    <span class="font-medium">Tailwind CSS</span> - Utility-first CSS framework
+                                </div>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-check-circle text-primary-600 mt-1 mr-2"></i>
+                                <div>
+                                    <span class="font-medium">Alpine.js</span> - Lightweight JavaScript framework
+                                </div>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-check-circle text-primary-600 mt-1 mr-2"></i>
+                                <div>
+                                    <span class="font-medium">Font Awesome</span> - Icon library
+                                </div>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-check-circle text-primary-600 mt-1 mr-2"></i>
+                                <div>
+                                    <span class="font-medium">Socket.IO</span> - Client-side real-time communication
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Database Schema -->
+            <div id="database-schema" class="scroll-mt-24">
+                <h3 class="text-xl font-semibold text-secondary-800 mb-4">1.2 Database Schema</h3>
+                <div class="bg-gray-50 p-4 rounded-lg overflow-auto">
+                    <pre class="text-sm text-secondary-800">
+<code>User
+├── id (PK)
+├── email
+├── password_hash
+├── phone_number
+├── is_verified
+├── role (client/personnel)
+├── created_at
+├── referral_code
+└── referred_by (FK -> User.id)
+
+Job
+├── id (PK)
+├── title
+├── description
+├── service_type
+├── duration_days
+├── budget
+├── status (open/in_progress/completed)
+├── client_id (FK -> User.id)
+├── personnel_id (FK -> User.id)
+└── created_at
+
+Bid
+├── id (PK)
+├── job_id (FK -> Job.id)
+├── personnel_id (FK -> User.id)
+├── amount
+├── message
+├── estimated_days
+├── status (pending/accepted/rejected)
+└── created_at
+
+Message
+├── id (PK)
+├── sender_id (FK -> User.id)
+├── receiver_id (FK -> User.id)
+├── job_id (FK -> Job.id)
+├── content
+├── attachment_url
+├── is_read
+└── created_at
+
+Review
+├── id (PK)
+├── job_id (FK -> Job.id)
+├── reviewer_id (FK -> User.id)
+├── reviewee_id (FK -> User.id)
+├── rating
+├── comment
+└── created_at
+
+Referral
+├── id (PK)
+├── referrer_id (FK -> User.id)
+├── referred_id (FK -> User.id)
+├── created_at
+└── reward_given</code>
+                    </pre>
+                </div>
+            </div>
+
+            <!-- Project Structure -->
+            <div id="project-structure" class="scroll-mt-24">
+                <h3 class="text-xl font-semibold text-secondary-800 mb-4">1.3 Project Structure</h3>
+                <div class="bg-gray-50 p-4 rounded-lg overflow-auto">
+                    <pre class="text-sm text-secondary-800">
+<code>app/
+├── __init__.py           # Application factory and extensions
+├── models.py             # Database models
+├── auth/                 # Authentication blueprint
+│   ├── __init__.py
+│   ├── routes.py         # Auth routes (login, register, etc.)
+│   ├── forms.py          # Auth forms
+│   └── utils.py          # Auth utilities (OTP, etc.)
+├── main/                 # Main blueprint
+│   ├── __init__.py
+│   └── routes.py         # Main routes (index, dashboard, etc.)
+├── jobs/                 # Jobs blueprint
+│   ├── __init__.py
+│   ├── routes.py         # Job routes (create, view, bid, etc.)
+│   └── forms.py          # Job forms
+├── messaging/            # Messaging blueprint
+│   ├── __init__.py
+│   ├── routes.py         # Messaging routes
+│   └── forms.py          # Messaging forms
+├── admin/                # Admin blueprint
+│   ├── __init__.py
+│   ├── routes.py         # Admin routes
+│   └── forms.py          # Admin forms
+├── static/               # Static assets
+│   ├── css/
+│   │   └── style.css     # Custom styles
+│   ├── js/
+│   │   └── main.js       # Custom JavaScript
+│   └── images/           # Image assets
+└── templates/            # Jinja2 templates
+    ├── base.html         # Base template
+    ├── auth/             # Auth templates
+    ├── main/             # Main templates
+    ├── jobs/             # Job templates
+    ├── messaging/        # Messaging templates
+    └── admin/            # Admin templates
+
+run.py                    # Application entry point</code>
+                    </pre>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- API Endpoints -->
+    <div id="endpoints" class="bg-white rounded-xl shadow-md overflow-hidden scroll-mt-24">
+        <div class="p-6 border-b border-gray-200">
+            <h2 class="text-2xl font-semibold text-secondary-800">2. API Endpoints</h2>
+        </div>
+        <div class="p-6 space-y-8">
+            <!-- Authentication Endpoints -->
+            <div id="auth-endpoints" class="scroll-mt-24">
+                <h3 class="text-xl font-semibold text-secondary-800 mb-4">2.1 Authentication Endpoints</h3>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-secondary-500 uppercase tracking-wider">Endpoint</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-secondary-500 uppercase tracking-wider">Method</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-secondary-500 uppercase tracking-wider">Description</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-secondary-500 uppercase tracking-wider">Authentication</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-secondary-800">/login</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-secondary-600">GET, POST</td>
+                                <td class="px-6 py-4 text-sm text-secondary-600">User login</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-secondary-600">None</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-secondary-800">/register</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-secondary-600">GET, POST</td>
+                                <td class="px-6 py-4 text-sm text-secondary-600">User registration</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-secondary-600">None</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-secondary-800">/verify-otp/&lt;user_id&gt;</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-secondary-600">GET, POST</td>
+                                <td class="px-6 py-4 text-sm text-secondary-600">OTP verification</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-secondary-600">None</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-secondary-800">/logout</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-secondary-600">GET</td>
+                                <td class="px-6 py-4 text-sm text-secondary-600">User logout</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-secondary-600">Required</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Job Endpoints -->
+            <div id="job-endpoints" class="scroll-mt-24">
+                <h3 class="text-xl font-semibold text-secondary-800 mb-4">2.2 Job Endpoints</h3>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-secondary-500 uppercase tracking-wider">Endpoint</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-secondary-500 uppercase tracking-wider">Method</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-secondary-500 uppercase tracking-wider">Description</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-secondary-500 uppercase tracking-wider">Authentication</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-secondary-800">/jobs</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-secondary-600">GET</td>
+                                <td class="px-6 py-4 text-sm text-secondary-600">List all jobs</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-secondary-600">None</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-secondary-800">/jobs/create</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-secondary-600">GET, POST</td>
+                                <td class="px-6 py-4 text-sm text-secondary-600">Create a new job</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-secondary-600">Required (Client)</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-secondary-800">/jobs/&lt;job_id&gt;</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-secondary-600">GET</td>
+                                <td class="px-6 py-4 text-sm text-secondary-600">View job details</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-secondary-600">None</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-secondary-800">/jobs/&lt;job_id&gt;/bid</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-secondary-600">GET, POST</td>
+                                <td class="px-6 py-4 text-sm text-secondary-600">Place a bid on a job</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-secondary-600">Required (Personnel)</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-secondary-800">/jobs/&lt;job_id&gt;/accept-bid/&lt;bid_id&gt;</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-secondary-600">POST</td>
+                                <td class="px-6 py-4 text-sm text-secondary-600">Accept a bid</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-secondary-600">Required (Job Owner)</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-secondary-800">/jobs/&lt;job_id&gt;/complete</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-secondary-600">POST</td>
+                                <td class="px-6 py-4 text-sm text-secondary-600">Mark job as completed</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-secondary-600">Required (Job Owner)</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-secondary-800">/jobs/&lt;job_id&gt;/review</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-secondary-600">GET, POST</td>
+                                <td class="px-6 py-4 text-sm text-secondary-600">Leave a review</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-secondary-600">Required (Job Owner or Personnel)</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Messaging Endpoints -->
+            <div id="messaging-endpoints" class="scroll-mt-24">
+                <h3 class="text-xl font-semibold text-secondary-800 mb-4">2.3 Messaging Endpoints</h3>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-secondary-500 uppercase tracking-wider">Endpoint</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-secondary-500 uppercase tracking-wider">Method</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-secondary-500 uppercase tracking-wider">Description</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-secondary-500 uppercase tracking-wider">Authentication</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-secondary-800">/messages</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-secondary-600">GET</td>
+                                <td class="px-6 py-4 text-sm text-secondary-600">List all conversations</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-secondary-600">Required</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-secondary-800">/messages/&lt;user_id&gt;</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-secondary-600">GET, POST</td>
+                                <td class="px-6 py-4 text-sm text-secondary-600">View/send messages with a user</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-secondary-600">Required</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-secondary-800">/messages/job/&lt;job_id&gt;/&lt;user_id&gt;</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-secondary-600">GET</td>
+                                <td class="px-6 py-4 text-sm text-secondary-600">Start conversation about a job</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-secondary-600">Required (Job Owner or Personnel)</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Admin Endpoints -->
+            <div id="admin-endpoints" class="scroll-mt-24">
+                <h3 class="text-xl font-semibold text-secondary-800 mb-4">2.4 Admin Endpoints</h3>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-secondary-500 uppercase tracking-wider">Endpoint</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-secondary-500 uppercase tracking-wider">Method</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-secondary-500 uppercase tracking-wider">Description</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-secondary-500 uppercase tracking-wider">Authentication</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-secondary-800">/admin</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-secondary-600">GET</td>
+                                <td class="px-6 py-4 text-sm text-secondary-600">Admin dashboard</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-secondary-600">Admin only</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-secondary-800">/admin/users</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-secondary-600">GET</td>
+                                <td class="px-6 py-4 text-sm text-secondary-600">List all users</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-secondary-600">Admin only</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-secondary-800">/admin/users/&lt;user_id&gt;</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-secondary-600">GET</td>
+                                <td class="px-6 py-4 text-sm text-secondary-600">View user details</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-secondary-600">Admin only</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-secondary-800">/admin/jobs</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-secondary-600">GET</td>
+                                <td class="px-6 py-4 text-sm text-secondary-600">List all jobs</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-secondary-600">Admin only</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-secondary-800">/admin/jobs/&lt;job_id&gt;</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-secondary-600">GET</td>
+                                <td class="px-6 py-4 text-sm text-secondary-600">View job details</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-secondary-600">Admin only</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-secondary-800">/admin/message/&lt;user_id&gt;</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-secondary-600">GET, POST</td>
+                                <td class="px-6 py-4 text-sm text-secondary-600">Send message to user</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-secondary-600">Admin only</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-secondary-800">/admin/revoke-access/&lt;user_id&gt;</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-secondary-600">POST</td>
+                                <td class="px-6 py-4 text-sm text-secondary-600">Revoke user access</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-secondary-600">Admin only</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-secondary-800">/admin/referrals</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-secondary-600">GET</td>
+                                <td class="px-6 py-4 text-sm text-secondary-600">List all referrals</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-secondary-600">Admin only</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- User Guide -->
+    <div id="user-guide" class="bg-white rounded-xl shadow-md overflow-hidden scroll-mt-24">
+        <div class="p-6 border-b border-gray-200">
+            <h2 class="text-2xl font-semibold text-secondary-800">3. User Guide</h2>
+        </div>
+        <div class="p-6 space-y-8">
+            <!-- For Clients -->
+            <div id="client-guide" class="scroll-mt-24">
+                <h3 class="text-xl font-semibold text-secondary-800 mb-4">3.1 For Clients</h3>
+                <div class="space-y-4">
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <h4 class="font-semibold text-secondary-800 mb-2">Posting a Job</h4>
+                        <ol class="list-decimal list-inside space-y-2 text-secondary-600">
+                            <li>Navigate to your dashboard and click "Post a Job" button</li>
+                            <li>Fill in the job details form with:
+                                <ul class="list-disc list-inside ml-6 mt-1">
+                                    <li>Job title</li>
+                                    <li>Detailed description</li>
+                                    <li>Service type</li>
+                                    <li>Expected duration</li>
+                                    <li>Budget</li>
+                                </ul>
+                            </li>
+                            <li>Submit the form to publish your job</li>
+                        </ol>
+                    </div>
+                    
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <h4 class="font-semibold text-secondary-800 mb-2">Managing Bids</h4>
+                        <ol class="list-decimal list-inside space-y-2 text-secondary-600">
+                            <li>View all bids on your job posting</li>
+                            <li>Review bid details including:
+                                <ul class="list-disc list-inside ml-6 mt-1">
+                                    <li>Bid amount</li>
+                                    <li>Estimated completion time</li>
+                                    <li>Personnel's message</li>
+                                </ul>
+                            </li>
+                            <li>Message personnel for clarification if needed</li>
+                            <li>Accept the most suitable bid</li>
+                        </ol>
+                    </div>
+                    
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <h4 class="font-semibold text-secondary-800 mb-2">Completing Jobs</h4>
+                        <ol class="list-decimal list-inside space-y-2 text-secondary-600">
+                            <li>Once the job is finished, mark it as complete</li>
+                            <li>Leave a review for the personnel</li>
+                            <li>Rate their work on a scale of 1-5</li>
+                            <li>Provide detailed feedback in your review</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+
+            <!-- For Construction Personnel -->
+            <div id="personnel-guide" class="scroll-mt-24">
+                <h3 class="text-xl font-semibold text-secondary-800 mb-4">3.2 For Construction Personnel</h3>
+                <div class="space-y-4">
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <h4 class="font-semibold text-secondary-800 mb-2">Finding Jobs</h4>
+                        <ol class="list-decimal list-inside space-y-2 text-secondary-600">
+                            <li>Browse available jobs on the jobs page</li>
+                            <li>Filter jobs by service type to find relevant opportunities</li>
+                            <li>View job details to understand requirements</li>
+                        </ol>
+                    </div>
+                    
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <h4 class="font-semibold text-secondary-800 mb-2">Placing Bids</h4>
+                        <ol class="list-decimal list-inside space-y-2 text-secondary-600">
+                            <li>Click "Place Bid" on jobs you're interested in</li>
+                            <li>Provide your bid details:
+                                <ul class="list-disc list-inside ml-6 mt-1">
+                                    <li>Bid amount</li>
+                                    <li>Estimated completion time</li>
+                                    <li>Message to client explaining your approach</li>
+                                </ul>
+                            </li>
+                            <li>Submit your bid</li>
+                        </ol>
+                    </div>
+                    
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <h4 class="font-semibold text-secondary-800 mb-2">Managing Accepted Jobs</h4>
+                        <ol class="list-decimal list-inside space-y-2 text-secondary-600">
+                            <li>Track your accepted bids on your dashboard</li>
+                            <li>Communicate with clients through the messaging system</li>
+                            <li>Update clients on progress</li>
+                            <li>After job completion, leave a review for the client</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Guide -->
+    <div id="admin-guide" class="bg-white rounded-xl shadow-md overflow-hidden scroll-mt-24">
+        <div class="p-6 border-b border-gray-200">
+            <h2 class="text-2xl font-semibold text-secondary-800">4. Admin Guide</h2>
+        </div>
+        <div class="p-6 space-y-4">
+            <div class="bg-gray-50 p-4 rounded-lg">
+                <h4 class="font-semibold text-secondary-800 mb-2">User Management</h4>
+                <ul class="space-y-2 text-secondary-600">
+                    <li class="flex items-start">
+                        <i class="fas fa-check-circle text-primary-600 mt-1 mr-2"></i>
+                        <div>
+                            <span class="font-medium">View Users</span> - Access the complete list of users and their details
+                        </div>
+                    </li>
+                    <li class="flex items-start">
+                        <i class="fas fa-check-circle text-primary-600 mt-1 mr-2"></i>
+                        <div>
+                            <span class="font-medium">User Details</span> - View comprehensive information about each user
+                        </div>
+                    </li>
+                    <li class="flex items-start">
+                        <i class="fas fa-check-circle text-primary-600 mt-1 mr-2"></i>
+                        <div>
+                            <span class="font-medium">Message Users</span> - Send SMS notifications to users
+                        </div>
+                    </li>
+                    <li class="flex items-start">
+                        <i class="fas fa-check-circle text-primary-600 mt-1 mr-2"></i>
+                        <div>
+                            <span class="font-medium">Revoke Access</span> - Disable user accounts when necessary
+                        </div>
+                    </li>
+                </ul>
+            </div>
+            
+            <div class="bg-gray-50 p-4 rounded-lg">
+                <h4 class="font-semibold text-secondary-800 mb-2">Job Management</h4>
+                <ul class="space-y-2 text-secondary-600">
+                    <li class="flex items-start">
+                        <i class="fas fa-check-circle text-primary-600 mt-1 mr-2"></i>
+                        <div>
+                            <span class="font-medium">View Jobs</span> - Monitor all jobs posted on the platform
+                        </div>
+                    </li>
+                    <li class="flex items-start">
+                        <i class="fas fa-check-circle text-primary-600 mt-1 mr-2"></i>
+                        <div>
+                            <span class="font-medium">Job Details</span> - Access detailed information about each job
+                        </div>
+                    </li>
+                    <li class="flex items-start">
+                        <i class="fas fa-check-circle text-primary-600 mt-1 mr-2"></i>
+                        <div>
+                            <span class="font-medium">Manage Bids</span> - Review all bids placed on jobs
+                        </div>
+                    </li>
+                    <li class="flex items-start">
+                        <i class="fas fa-check-circle text-primary-600 mt-1 mr-2"></i>
+                        <div>
+                            <span class="font-medium">Flag/Delete Jobs</span> - Remove inappropriate job listings
+                        </div>
+                    </li>
+                </ul>
+            </div>
+            
+            <div class="bg-gray-50 p-4 rounded-lg">
+                <h4 class="font-semibold text-secondary-800 mb-2">Referral Management</h4>
+                <ul class="space-y-2 text-secondary-600">
+                    <li class="flex items-start">
+                        <i class="fas fa-check-circle text-primary-600 mt-1 mr-2"></i>
+                        <div>
+                            <span class="font-medium">Track Referrals</span> - Monitor all referrals on the platform
+                        </div>
+                    </li>
+                    <li class="flex items-start">
+                        <i class="fas fa-check-circle text-primary-600 mt-1 mr-2"></i>
+                        <div>
+                            <span class="font-medium">Manage Rewards</span> - Process referral rewards
+                        </div>
+                    </li>
+                    <li class="flex items-start">
+                        <i class="fas fa-check-circle text-primary-600 mt-1 mr-2"></i>
+                        <div>
+                            <span class="font-medium">View Statistics</span> - Access referral program performance metrics
+                        </div>
+                    </li>
+                </ul>
+            </div>
+            
+            <div class="bg-gray-50 p-4 rounded-lg">
+                <h4 class="font-semibold text-secondary-800 mb-2">System Monitoring</h4>
+                <ul class="space-y-2 text-secondary-600">
+                    <li class="flex items-start">
+                        <i class="fas fa-check-circle text-primary-600 mt-1 mr-2"></i>
+                        <div>
+                            <span class="font-medium">Dashboard</span> - View key platform metrics and statistics
+                        </div>
+                    </li>
+                    <li class="flex items-start">
+                        <i class="fas fa-check-circle text-primary-600 mt-1 mr-2"></i>
+                        <div>
+                            <span class="font-medium">System Status</span> - Monitor the health of platform components
+                        </div>
+                    </li>
+                    <li class="flex items-start">
+                        <i class="fas fa-check-circle text-primary-600 mt-1 mr-2"></i>
+                        <div>
+                            <span class="font-medium">Activity Logs</span> - Track important user actions
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,364 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Construction Marketplace{% endblock %}
+
+{% block content %}
+<div class="space-y-8">
+    <!-- Dashboard Header -->
+    <div class="bg-white rounded-xl shadow-md p-6">
+        <h1 class="text-2xl font-bold text-secondary-800 mb-2">Welcome, {{ current_user.email.split('@')[0] }}</h1>
+        <p class="text-secondary-600">
+            {% if current_user.role == 'client' %}
+                Manage your construction projects and find skilled professionals.
+            {% else %}
+                Find jobs and manage your bids in one place.
+            {% endif %}
+        </p>
+    </div>
+    
+    <!-- Dashboard Stats -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        {% if current_user.role == 'client' %}
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <div class="flex items-center">
+                    <div class="w-12 h-12 bg-primary-100 text-primary-700 rounded-full flex items-center justify-center mr-4">
+                        <i class="fas fa-clipboard-list text-xl"></i>
+                    </div>
+                    <div>
+                        <p class="text-secondary-600 text-sm">Total Jobs</p>
+                        <h3 class="text-2xl font-bold text-secondary-800">{{ jobs|length }}</h3>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <div class="flex items-center">
+                    <div class="w-12 h-12 bg-yellow-100 text-yellow-700 rounded-full flex items-center justify-center mr-4">
+                        <i class="fas fa-clock text-xl"></i>
+                    </div>
+                    <div>
+                        <p class="text-secondary-600 text-sm">In Progress</p>
+                        <h3 class="text-2xl font-bold text-secondary-800">{{ jobs|selectattr('status', 'equalto', 'in_progress')|list|length }}</h3>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <div class="flex items-center">
+                    <div class="w-12 h-12 bg-green-100 text-green-700 rounded-full flex items-center justify-center mr-4">
+                        <i class="fas fa-check-circle text-xl"></i>
+                    </div>
+                    <div>
+                        <p class="text-secondary-600 text-sm">Completed</p>
+                        <h3 class="text-2xl font-bold text-secondary-800">{{ jobs|selectattr('status', 'equalto', 'completed')|list|length }}</h3>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <div class="flex items-center">
+                    <div class="w-12 h-12 bg-blue-100 text-blue-700 rounded-full flex items-center justify-center mr-4">
+                        <i class="fas fa-user-plus text-xl"></i>
+                    </div>
+                    <div>
+                        <p class="text-secondary-600 text-sm">Referrals</p>
+                        <h3 class="text-2xl font-bold text-secondary-800">{{ referrals|default([])|length }}</h3>
+                    </div>
+                </div>
+            </div>
+        {% else %}
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <div class="flex items-center">
+                    <div class="w-12 h-12 bg-primary-100 text-primary-700 rounded-full flex items-center justify-center mr-4">
+                        <i class="fas fa-gavel text-xl"></i>
+                    </div>
+                    <div>
+                        <p class="text-secondary-600 text-sm">Total Bids</p>
+                        <h3 class="text-2xl font-bold text-secondary-800">{{ bids|length }}</h3>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <div class="flex items-center">
+                    <div class="w-12 h-12 bg-yellow-100 text-yellow-700 rounded-full flex items-center justify-center mr-4">
+                        <i class="fas fa-clock text-xl"></i>
+                    </div>
+                    <div>
+                        <p class="text-secondary-600 text-sm">Pending Bids</p>
+                        <h3 class="text-2xl font-bold text-secondary-800">{{ bids|selectattr('status', 'equalto', 'pending')|list|length }}</h3>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <div class="flex items-center">
+                    <div class="w-12 h-12 bg-green-100 text-green-700 rounded-full flex items-center justify-center mr-4">
+                        <i class="fas fa-check-circle text-xl"></i>
+                    </div>
+                    <div>
+                        <p class="text-secondary-600 text-sm">Accepted Bids</p>
+                        <h3 class="text-2xl font-bold text-secondary-800">{{ bids|selectattr('status', 'equalto', 'accepted')|list|length }}</h3>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <div class="flex items-center">
+                    <div class="w-12 h-12 bg-blue-100 text-blue-700 rounded-full flex items-center justify-center mr-4">
+                        <i class="fas fa-star text-xl"></i>
+                    </div>
+                    <div>
+                        <p class="text-secondary-600 text-sm">Reviews</p>
+                        <h3 class="text-2xl font-bold text-secondary-800">{{ current_user.reviews_received|default([])|length }}</h3>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+    
+    <!-- Main Dashboard Content -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Left Column -->
+        <div class="lg:col-span-2 space-y-6">
+            {% if current_user.role == 'client' %}
+                <!-- My Jobs -->
+                <div class="bg-white rounded-xl shadow-md overflow-hidden">
+                    <div class="p-6 border-b border-gray-200">
+                        <div class="flex justify-between items-center">
+                            <h2 class="text-xl font-semibold text-secondary-800">My Jobs</h2>
+                            <a href="{{ url_for('jobs.create') }}" class="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-md text-sm font-medium transition duration-200">
+                                <i class="fas fa-plus mr-1"></i> Post New Job
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <div class="divide-y divide-gray-200">
+                        {% for job in jobs %}
+                        <div class="p-6 hover:bg-gray-50 transition duration-150">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <h3 class="text-lg font-semibold text-secondary-800">{{ job.title }}</h3>
+                                    <div class="flex items-center mt-1 text-sm">
+                                        <span class="bg-primary-100 text-primary-800 px-2 py-0.5 rounded-full">{{ job.service_type }}</span>
+                                        <span class="mx-2 text-secondary-400">•</span>
+                                        <span class="text-secondary-500"><i class="far fa-clock mr-1"></i> {{ job.duration_days }} days</span>
+                                        <span class="mx-2 text-secondary-400">•</span>
+                                        <span class="text-secondary-500"><i class="fas fa-dollar-sign mr-1"></i> ${{ job.budget }}</span>
+                                    </div>
+                                </div>
+                                <div>
+                                    {% if job.status == 'open' %}
+                                        <span class="bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-0.5 rounded-full">Open</span>
+                                    {% elif job.status == 'in_progress' %}
+                                        <span class="bg-yellow-100 text-yellow-800 text-xs font-semibold px-2.5 py-0.5 rounded-full">In Progress</span>
+                                    {% elif job.status == 'completed' %}
+                                        <span class="bg-green-100 text-green-800 text-xs font-semibold px-2.5 py-0.5 rounded-full">Completed</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            
+                            <div class="mt-4 flex justify-between items-center">
+                                <div class="text-sm text-secondary-500">
+                                    <i class="fas fa-gavel mr-1"></i> {{ job.bids|length }} bids
+                                </div>
+                                <div class="flex space-x-2">
+                                    <a href="{{ url_for('jobs.view', job_id=job.id) }}" class="text-primary-600 hover:text-primary-700 text-sm font-medium">
+                                        View Details
+                                    </a>
+                                    {% if job.status == 'in_progress' %}
+                                        <form method="POST" action="{{ url_for('jobs.complete_job', job_id=job.id) }}" class="inline">
+                                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                            <button type="submit" class="text-green-600 hover:text-green-700 text-sm font-medium">
+                                                Mark Complete
+                                            </button>
+                                        </form>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        {% else %}
+                        <div class="p-6 text-center">
+                            <p class="text-secondary-500">You haven't posted any jobs yet.</p>
+                            <a href="{{ url_for('jobs.create') }}" class="mt-2 inline-block text-primary-600 hover:text-primary-700 font-medium">Post your first job</a>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% else %}
+                <!-- My Bids -->
+                <div class="bg-white rounded-xl shadow-md overflow-hidden">
+                    <div class="p-6 border-b border-gray-200">
+                        <div class="flex justify-between items-center">
+                            <h2 class="text-xl font-semibold text-secondary-800">My Bids</h2>
+                            <a href="{{ url_for('jobs.index') }}" class="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-md text-sm font-medium transition duration-200">
+                                <i class="fas fa-search mr-1"></i> Find Jobs
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <div class="divide-y divide-gray-200">
+                        {% for bid in bids %}
+                        <div class="p-6 hover:bg-gray-50 transition duration-150">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <h3 class="text-lg font-semibold text-secondary-800">{{ bid.job.title }}</h3>
+                                    <div class="flex items-center mt-1 text-sm">
+                                        <span class="bg-primary-100 text-primary-800 px-2 py-0.5 rounded-full">{{ bid.job.service_type }}</span>
+                                        <span class="mx-2 text-secondary-400">•</span>
+                                        <span class="text-secondary-500"><i class="fas fa-dollar-sign mr-1"></i> Your bid: ${{ bid.amount }}</span>
+                                        <span class="mx-2 text-secondary-400">•</span>
+                                        <span class="text-secondary-500"><i class="far fa-clock mr-1"></i> {{ bid.estimated_days }} days</span>
+                                    </div>
+                                </div>
+                                <div>
+                                    {% if bid.status == 'pending' %}
+                                        <span class="bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-0.5 rounded-full">Pending</span>
+                                    {% elif bid.status == 'accepted' %}
+                                        <span class="bg-green-100 text-green-800 text-xs font-semibold px-2.5 py-0.5 rounded-full">Accepted</span>
+                                    {% elif bid.status == 'rejected' %}
+                                        <span class="bg-red-100 text-red-800 text-xs font-semibold px-2.5 py-0.5 rounded-full">Rejected</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            
+                            <div class="mt-4 flex justify-between items-center">
+                                <div class="text-sm text-secondary-500">
+                                    <i class="fas fa-calendar-alt mr-1"></i> Bid on {{ bid.created_at.strftime('%b %d, %Y') }}
+                                </div>
+                                <div class="flex space-x-2">
+                                    <a href="{{ url_for('jobs.view', job_id=bid.job_id) }}" class="text-primary-600 hover:text-primary-700 text-sm font-medium">
+                                        View Job
+                                    </a>
+                                    {% if bid.status == 'accepted' and bid.job.status == 'completed' %}
+                                        <a href="{{ url_for('jobs.review', job_id=bid.job_id) }}" class="text-yellow-600 hover:text-yellow-700 text-sm font-medium">
+                                            Leave Review
+                                        </a>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        {% else %}
+                        <div class="p-6 text-center">
+                            <p class="text-secondary-500">You haven't placed any bids yet.</p>
+                            <a href="{{ url_for('jobs.index') }}" class="mt-2 inline-block text-primary-600 hover:text-primary-700 font-medium">Browse available jobs</a>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                
+                <!-- Available Jobs -->
+                <div class="bg-white rounded-xl shadow-md overflow-hidden">
+                    <div class="p-6 border-b border-gray-200">
+                        <h2 class="text-xl font-semibold text-secondary-800">Available Jobs</h2>
+                    </div>
+                    
+                    <div class="divide-y divide-gray-200">
+                        {% for job in available_jobs %}
+                        <div class="p-6 hover:bg-gray-50 transition duration-150">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <h3 class="text-lg font-semibold text-secondary-800">{{ job.title }}</h3>
+                                    <div class="flex items-center mt-1 text-sm">
+                                        <span class="bg-primary-100 text-primary-800 px-2 py-0.5 rounded-full">{{ job.service_type }}</span>
+                                        <span class="mx-2 text-secondary-400">•</span>
+                                        <span class="text-secondary-500"><i class="far fa-clock mr-1"></i> {{ job.duration_days }} days</span>
+                                        <span class="mx-2 text-secondary-400">•</span>
+                                        <span class="text-secondary-500"><i class="fas fa-dollar-sign mr-1"></i> ${{ job.budget }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="mt-4 flex justify-between items-center">
+                                <div class="text-sm text-secondary-500">
+                                    <i class="fas fa-calendar-alt mr-1"></i> Posted on {{ job.created_at.strftime('%b %d, %Y') }}
+                                </div>
+                                <a href="{{ url_for('jobs.view', job_id=job.id) }}" class="text-primary-600 hover:text-primary-700 text-sm font-medium">
+                                    View Details
+                                </a>
+                            </div>
+                        </div>
+                        {% else %}
+                        <div class="p-6 text-center">
+                            <p class="text-secondary-500">No available jobs at the moment.</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+        
+        <!-- Right Column -->
+        <div class="space-y-6">
+            <!-- Profile Card -->
+            <div class="bg-white rounded-xl shadow-md overflow-hidden">
+                <div class="bg-primary-700 p-6 text-white">
+                    <div class="flex items-center">
+                        <div class="w-16 h-16 bg-white text-primary-700 rounded-full flex items-center justify-center mr-4">
+                            <i class="fas fa-user text-2xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-semibold">{{ current_user.email.split('@')[0] }}</h3>
+                            <p class="text-primary-100">{{ current_user.role.capitalize() }}</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="p-6">
+                    <div class="mb-4">
+                        <h4 class="text-sm font-medium text-secondary-500 mb-2">Contact Information</h4>
+                        <p class="flex items-center text-secondary-800"><i class="fas fa-envelope w-5 text-secondary-400"></i> {{ current_user.email }}</p>
+                        <p class="flex items-center text-secondary-800 mt-1"><i class="fas fa-phone w-5 text-secondary-400"></i> {{ current_user.phone_number }}</p>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <h4 class="text-sm font-medium text-secondary-500 mb-2">Member Since</h4>
+                        <p class="text-secondary-800">{{ current_user.created_at.strftime('%B %d, %Y') }}</p>
+                    </div>
+                    
+                    <a href="{{ url_for('main.profile') }}" class="block w-full text-center bg-primary-600 hover:bg-primary-700 text-white font-medium py-2 rounded transition duration-200">
+                        View Full Profile
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Referral Card -->
+            <div class="bg-white rounded-xl shadow-md overflow-hidden">
+                <div class="p-6 border-b border-gray-200">
+                    <h3 class="text-lg font-semibold text-secondary-800">Refer & Earn</h3>
+                </div>
+                
+                <div class="p-6">
+                    <p class="text-secondary-600 mb-4">Share your referral code with friends and earn rewards when they sign up.</p>
+                    
+                    <div class="bg-gray-100 p-3 rounded-md flex justify-between items-center mb-4">
+                        <span class="font-mono text-secondary-800 font-medium">{{ current_user.referral_code }}</span>
+                        <button class="text-primary-600 hover:text-primary-700" onclick="copyToClipboard('{{ current_user.referral_code }}')">
+                            <i class="fas fa-copy"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="flex space-x-2">
+                        <a href="https://wa.me/?text=Join%20Construction%20Marketplace%20using%20my%20referral%20code%3A%20{{ current_user.referral_code }}%20-%20{{ url_for('auth.register', _external=True) }}" target="_blank" class="flex-1 bg-green-500 hover:bg-green-600 text-white text-center py-2 rounded transition duration-200">
+                            <i class="fab fa-whatsapp mr-1"></i> WhatsApp
+                        </a>
+                        <a href="mailto:?subject=Join%20Construction%20Marketplace&body=Join%20Construction%20Marketplace%20using%20my%20referral%20code%3A%20{{ current_user.referral_code }}%20-%20{{ url_for('auth.register', _external=True) }}" class="flex-1 bg-blue-500 hover:bg-blue-600 text-white text-center py-2 rounded transition duration-200">
+                            <i class="fas fa-envelope mr-1"></i> Email
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function copyToClipboard(text) {
+    navigator.clipboard.writeText(text).then(function() {
+        alert('Referral code copied to clipboard!');
+    }, function(err) {
+        console.error('Could not copy text: ', err);
+    });
+}
+</script>
+{% endblock %}

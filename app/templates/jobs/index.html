@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+
+{% block title %}Jobs - Construction Marketplace{% endblock %}
+
+{% block content %}
+<div class="space-y-8">
+    <!-- Jobs Header -->
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div>
+            <h1 class="text-3xl font-bold text-secondary-800">Available Jobs</h1>
+            <p class="text-secondary-600 mt-1">Browse and bid on construction jobs</p>
+        </div>
+        
+        {% if current_user.is_authenticated and current_user.role == 'client' %}
+        <a href="{{ url_for('jobs.create') }}" class="bg-primary-600 hover:bg-primary-700 text-white px-6 py-3 rounded-md font-medium transition duration-200">
+            <i class="fas fa-plus mr-1"></i> Post a Job
+        </a>
+        {% endif %}
+    </div>
+    
+    <!-- Filters -->
+    <div class="bg-white rounded-xl shadow-md p-6">
+        <form method="GET" action="{{ url_for('jobs.index') }}" class="flex flex-col md:flex-row gap-4">
+            <div class="flex-1">
+                <label for="service_type" class="block text-sm font-medium text-secondary-700 mb-1">Service Type</label>
+                <select name="service_type" id="service_type" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                    <option value="">All Services</option>
+                    <option value="plumbing" {% if request.args.get('service_type') == 'plumbing' %}selected{% endif %}>Plumbing</option>
+                    <option value="electrical" {% if request.args.get('service_type') == 'electrical' %}selected{% endif %}>Electrical</option>
+                    <option value="carpentry" {% if request.args.get('service_type') == 'carpentry' %}selected{% endif %}>Carpentry</option>
+                    <option value="painting" {% if request.args.get('service_type') == 'painting' %}selected{% endif %}>Painting</option>
+                    <option value="roofing" {% if request.args.get('service_type') == 'roofing' %}selected{% endif %}>Roofing</option>
+                    <option value="masonry" {% if request.args.get('service_type') == 'masonry' %}selected{% endif %}>Masonry</option>
+                    <option value="landscaping" {% if request.args.get('service_type') == 'landscaping' %}selected{% endif %}>Landscaping</option>
+                    <option value="other" {% if request.args.get('service_type') == 'other' %}selected{% endif %}>Other</option>
+                </select>
+            </div>
+            
+            <div class="flex-1">
+                <label for="sort" class="block text-sm font-medium text-secondary-700 mb-1">Sort By</label>
+                <select name="sort" id="sort" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                    <option value="newest" {% if request.args.get('sort') == 'newest' or not request.args.get('sort') %}selected{% endif %}>Newest First</option>
+                    <option value="budget_high" {% if request.args.get('sort') == 'budget_high' %}selected{% endif %}>Budget: High to Low</option>
+                    <option value="budget_low" {% if request.args.get('sort') == 'budget_low' %}selected{% endif %}>Budget: Low to High</option>
+                    <option value="duration_short" {% if request.args.get('sort') == 'duration_short' %}selected{% endif %}>Duration: Shortest First</option>
+                </select>
+            </div>
+            
+            <div class="flex items-end">
+                <button type="submit" class="w-full md:w-auto bg-primary-600 hover:bg-primary-700 text-white px-6 py-2 rounded-md font-medium transition duration-200">
+                    <i class="fas fa-filter mr-1"></i> Apply Filters
+                </button>
+            </div>
+        </form>
+    </div>
+    
+    <!-- Jobs List -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {% for job in jobs %}
+        <div class="bg-white rounded-lg shadow-md overflow-hidden transition-transform duration-300 hover:shadow-lg hover:-translate-y-1">
+            <div class="p-6">
+                <div class="flex justify-between items-start mb-4">
+                    <h3 class="text-xl font-semibold text-secondary-800 truncate">{{ job.title }}</h3>
+                    <span class="bg-primary-100 text-primary-800 text-xs font-semibold px-2.5 py-0.5 rounded">{{ job.service_type }}</span>
+                </div>
+                <p class="text-secondary-600 mb-4 line-clamp-3">{{ job.description }}</p>
+                <div class="flex justify-between items-center text-sm text-secondary-500 mb-4">
+                    <div><i class="far fa-clock mr-1"></i> {{ job.duration_days }} days</div>
+                    <div><i class="fas fa-dollar-sign mr-1"></i> ${{ job.budget }}</div>
+                </div>
+                <div class="flex justify-between items-center text-sm text-secondary-500 mb-4">
+                    <div><i class="fas fa-user mr-1"></i> {{ job.client.email.split('@')[0] }}</div>
+                    <div><i class="fas fa-calendar-alt mr-1"></i> {{ job.created_at.strftime('%b %d, %Y') }}</div>
+                </div>
+                <a href="{{ url_for('jobs.view', job_id=job.id) }}" class="block w-full text-center bg-primary-600 hover:bg-primary-700 text-white font-medium py-2 rounded transition duration-200">View Details</a>
+            </div>
+        </div>
+        {% else %}
+        <div class="col-span-3 bg-white rounded-lg shadow-md p-8 text-center">
+            <div class="w-16 h-16 bg-primary-100 text-primary-700 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i class="fas fa-search text-2xl"></i>
+            </div>
+            <h3 class="text-xl font-semibold text-secondary-800 mb-2">No Jobs Found</h3>
+            <p class="text-secondary-600 mb-4">There are no jobs matching your criteria at the moment.</p>
+            <a href="{{ url_for('jobs.index') }}" class="inline-block bg-primary-600 hover:bg-primary-700 text-white px-6 py-2 rounded-md font-medium transition duration-200">Clear Filters</a>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

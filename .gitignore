@@ -1,6 +1,5 @@
-
-# dependencies
-/venv
-
-# env files
-.env*
+venv/
+__pycache__/
+*.pyc
+instance/
+.env

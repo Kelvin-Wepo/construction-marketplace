@@ -1,0 +1,197 @@
+{% extends "base.html" %}
+
+{% block title %}Construction Marketplace - Home{% endblock %}
+
+{% block content %}
+<div class="space-y-12">
+    <!-- Hero Section -->
+    <section class="bg-primary-700 text-white rounded-xl overflow-hidden shadow-xl">
+        <div class="container mx-auto px-6 py-16 md:py-24 flex flex-col md:flex-row items-center">
+            <div class="md:w-1/2 mb-10 md:mb-0">
+                <h1 class="text-4xl md:text-5xl font-bold leading-tight mb-6">Find the Right Construction Professional for Your Project</h1>
+                <p class="text-xl mb-8 text-primary-100">Connect with skilled plumbers, electricians, carpenters, and more. Post your job and get competitive bids from qualified professionals.</p>
+                <div class="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
+                    {% if current_user.is_authenticated %}
+                        {% if current_user.role == 'client' %}
+                            <a href="{{ url_for('jobs.create') }}" class="bg-white text-primary-700 hover:bg-gray-100 px-6 py-3 rounded-md font-semibold text-center transition duration-200">Post a Job</a>
+                        {% else %}
+                            <a href="{{ url_for('jobs.index') }}" class="bg-white text-primary-700 hover:bg-gray-100 px-6 py-3 rounded-md font-semibold text-center transition duration-200">Find Jobs</a>
+                        {% endif %}
+                        <a href="{{ url_for('main.dashboard') }}" class="border border-white text-white hover:bg-primary-600 px-6 py-3 rounded-md font-semibold text-center transition duration-200">My Dashboard</a>
+                    {% else %}
+                        <a href="{{ url_for('auth.register') }}" class="bg-white text-primary-700 hover:bg-gray-100 px-6 py-3 rounded-md font-semibold text-center transition duration-200">Get Started</a>
+                        <a href="{{ url_for('auth.login') }}" class="border border-white text-white hover:bg-primary-600 px-6 py-3 rounded-md font-semibold text-center transition duration-200">Login</a>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="md:w-1/2">
+                <img src="{{ url_for('static', filename='images/hero-image.jpg') }}" alt="Construction professionals" class="rounded-lg shadow-lg" onerror="this.src='https://images.unsplash.com/photo-1504307651254-35680f356dfd?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80'; this.onerror=null;">
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works -->
+    <section>
+        <div class="text-center mb-12">
+            <h2 class="text-3xl font-bold text-secondary-800">How It Works</h2>
+            <p class="text-secondary-600 mt-2 max-w-2xl mx-auto">Our platform makes it easy to connect clients with construction professionals</p>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <!-- For Clients -->
+            <div class="bg-white p-6 rounded-lg shadow-md text-center">
+                <div class="w-16 h-16 bg-primary-100 text-primary-700 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-clipboard-list text-2xl"></i>
+                </div>
+                <h3 class="text-xl font-semibold mb-2">Post a Job</h3>
+                <p class="text-secondary-600">Describe your project, set your budget, and specify the timeframe.</p>
+            </div>
+            
+            <!-- For Both -->
+            <div class="bg-white p-6 rounded-lg shadow-md text-center">
+                <div class="w-16 h-16 bg-primary-100 text-primary-700 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-comments text-2xl"></i>
+                </div>
+                <h3 class="text-xl font-semibold mb-2">Connect & Communicate</h3>
+                <p class="text-secondary-600">Review bids, chat with professionals, and choose the best fit for your project.</p>
+            </div>
+            
+            <!-- For Professionals -->
+            <div class="bg-white p-6 rounded-lg shadow-md text-center">
+                <div class="w-16 h-16 bg-primary-100 text-primary-700 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-star text-2xl"></i>
+                </div>
+                <h3 class="text-xl font-semibold mb-2">Complete & Review</h3>
+                <p class="text-secondary-600">Finish the job, mark it complete, and leave reviews to build your reputation.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Recent Jobs -->
+    <section>
+        <div class="flex justify-between items-center mb-6">
+            <h2 class="text-2xl font-bold text-secondary-800">Recent Jobs</h2>
+            <a href="{{ url_for('jobs.index') }}" class="text-primary-600 hover:text-primary-700 font-medium">View All <i class="fas fa-arrow-right ml-1"></i></a>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {% for job in recent_jobs %}
+            <div class="bg-white rounded-lg shadow-md overflow-hidden transition-transform duration-300 hover:shadow-lg hover:-translate-y-1">
+                <div class="p-6">
+                    <div class="flex justify-between items-start mb-4">
+                        <h3 class="text-xl font-semibold text-secondary-800 truncate">{{ job.title }}</h3>
+                        <span class="bg-primary-100 text-primary-800 text-xs font-semibold px-2.5 py-0.5 rounded">{{ job.service_type }}</span>
+                    </div>
+                    <p class="text-secondary-600 mb-4 line-clamp-2">{{ job.description }}</p>
+                    <div class="flex justify-between items-center text-sm text-secondary-500 mb-4">
+                        <div><i class="far fa-clock mr-1"></i> {{ job.duration_days }} days</div>
+                        <div><i class="fas fa-dollar-sign mr-1"></i> ${{ job.budget }}</div>
+                    </div>
+                    <a href="{{ url_for('jobs.view', job_id=job.id) }}" class="block w-full text-center bg-primary-600 hover:bg-primary-700 text-white font-medium py-2 rounded transition duration-200">View Details</a>
+                </div>
+            </div>
+            {% else %}
+            <div class="col-span-3 text-center py-8">
+                <p class="text-secondary-500">No jobs available at the moment.</p>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+
+    <!-- Top Professionals -->
+    <section>
+        <div class="flex justify-between items-center mb-6">
+            <h2 class="text-2xl font-bold text-secondary-800">Top Professionals</h2>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {% for personnel in top_personnel %}
+            <div class="bg-white rounded-lg shadow-md overflow-hidden text-center p-6">
+                <div class="w-20 h-20 bg-primary-100 text-primary-700 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-user text-2xl"></i>
+                </div>
+                <h3 class="text-lg font-semibold">{{ personnel.email.split('@')[0] }}</h3>
+                <div class="flex justify-center my-2">
+                    {% set avg_rating = personnel.reviews_received|map(attribute='rating')|sum / personnel.reviews_received|length if personnel.reviews_received else 0 %}
+                    {% for i in range(5) %}
+                        {% if i < avg_rating|int %}
+                            <i class="fas fa-star text-yellow-400"></i>
+                        {% elif i < avg_rating|round(0, 'ceil') and (avg_rating % 1) > 0 %}
+                            <i class="fas fa-star-half-alt text-yellow-400"></i>
+                        {% else %}
+                            <i class="far fa-star text-yellow-400"></i>
+                        {% endif %}
+                    {% endfor %}
+                    <span class="ml-1 text-sm text-secondary-500">({{ personnel.reviews_received|length }})</span>
+                </div>
+                <p class="text-secondary-500 text-sm mb-4">{{ personnel.reviews_received|length }} completed jobs</p>
+            </div>
+            {% else %}
+            <div class="col-span-4 text-center py-8">
+                <p class="text-secondary-500">No top professionals available at the moment.</p>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+
+    <!-- Testimonials -->
+    <section class="bg-primary-50 rounded-xl p-8">
+        <div class="text-center mb-10">
+            <h2 class="text-3xl font-bold text-secondary-800">What Our Users Say</h2>
+            <p class="text-secondary-600 mt-2">Hear from clients and professionals who have used our platform</p>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div class="bg-white p-6 rounded-lg shadow-md">
+                <div class="flex items-center mb-4">
+                    <div class="w-12 h-12 bg-primary-100 text-primary-700 rounded-full flex items-center justify-center mr-4">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div>
+                        <h4 class="font-semibold">John Smith</h4>
+                        <p class="text-sm text-secondary-500">Homeowner</p>
+                    </div>
+                </div>
+                <p class="text-secondary-600 italic">"I found an excellent electrician through this platform. The job was completed on time and within budget. Will definitely use again for my next project!"</p>
+                <div class="flex mt-3 text-yellow-400">
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                </div>
+            </div>
+            
+            <div class="bg-white p-6 rounded-lg shadow-md">
+                <div class="flex items-center mb-4">
+                    <div class="w-12 h-12 bg-primary-100 text-primary-700 rounded-full flex items-center justify-center mr-4">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div>
+                        <h4 class="font-semibold">Sarah Johnson</h4>
+                        <p class="text-sm text-secondary-500">Plumber</p>
+                    </div>
+                </div>
+                <p class="text-secondary-600 italic">"As a professional plumber, this platform has helped me find consistent work and connect with clients in my area. The bidding system is fair and the messaging feature makes communication easy."</p>
+                <div class="flex mt-3 text-yellow-400">
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star-half-alt"></i>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="bg-primary-700 text-white rounded-xl p-8 text-center">
+        <h2 class="text-3xl font-bold mb-4">Ready to Get Started?</h2>
+        <p class="text-xl mb-6 max-w-2xl mx-auto">Join our community of clients and construction professionals today.</p>
+        <div class="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4">
+            <a href="{{ url_for('auth.register') }}" class="bg-white text-primary-700 hover:bg-gray-100 px-6 py-3 rounded-md font-semibold transition duration-200">Sign Up Now</a>
+            <a href="{{ url_for('jobs.index') }}" class="border border-white text-white hover:bg-primary-600 px-6 py-3 rounded-md font-semibold transition duration-200">Browse Jobs</a>
+        </div>
+    </section>
+</div>
+{% endblock %}

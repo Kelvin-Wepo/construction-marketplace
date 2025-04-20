@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+
+{% block title %}Message User - Construction Marketplace{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto">
+    <div class="bg-white rounded-xl shadow-md overflow-hidden">
+        <div class="p-6 border-b border-gray-200">
+            <h1 class="text-2xl font-bold text-secondary-800">Send Message to User</h1>
+            <p class="text-secondary-600 mt-1">Send an SMS notification to {{ user.email.split('@')[0] }}</p>
+        </div>
+        
+        <div class="p-6">
+            <!-- User Info -->
+            <div class="flex items-center mb-6">
+                <div class="w-12 h-12 bg-primary-100 text-primary-700 rounded-full flex items-center justify-center mr-4">
+                    <i class="fas fa-user text-xl"></i>
+                </div>
+                <div>
+                    <h2 class="text-lg font-semibold text-secondary-800">{{ user.email }}</h2>
+                    <p class="text-secondary-500">{{ user.phone_number }}</p>
+                </div>
+            </div>
+            
+            <form method="POST" action="{{ url_for('admin.message_user', user_id=user.id) }}">
+                {{ form.hidden_tag() }}
+                
+                <div class="space-y-6">
+                    <div>
+                        <label for="message" class="block text-sm font-medium text-secondary-700 mb-1">Message</label>
+                        {{ form.message(class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500", rows="4", placeholder="Type your message here...") }}
+                        {% if form.message.errors %}
+                            <div class="text-danger text-sm mt-1">
+                                {% for error in form.message.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                        <p class="text-sm text-secondary-500 mt-1">Maximum 160 characters (SMS limit)</p>
+                    </div>
+                    
+                    <div class="flex justify-end">
+                        <a href="{{ url_for('admin.user_detail', user_id=user.id) }}" class="bg-gray-200 hover:bg-gray-300 text-secondary-800 font-medium py-2 px-6 rounded-md mr-3 transition duration-200">Cancel</a>
+                        {{ form.submit(class="bg-primary-600 hover:bg-primary-700 text-white font-medium py-2 px-6 rounded-md transition duration-200") }}
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <div class="bg-primary-50 rounded-xl p-6 mt-6">
+        <h2 class="text-lg font-semibold text-secondary-800 mb-3">Message Templates</h2>
+        <div class="space-y-3">
+            <button class="w-full text-left p-3 bg-white rounded-md hover:bg-gray-50 transition duration-150 border border-gray-200" onclick="fillTemplate('Welcome to Construction Marketplace! Your account has been verified. You can now start using our platform.')">
+                <p class="font-medium text-secondary-800">Welcome Message</p>
+                <p class="text-sm text-secondary-600 truncate">Welcome to Construction Marketplace! Your account has been verified. You can now start using our platform.</p>
+            </button>
+            
+            <button class="w-full text-left p-3 bg-white rounded-md hover:bg-gray-50 transition duration-150 border border-gray-200" onclick="fillTemplate('Your account requires verification. Please log in to complete the verification process.')">
+                <p class="font-medium text-secondary-800">Verification Reminder</p>
+                <p class="text-sm text-secondary-600 truncate">Your account requires verification. Please log in to complete the verification process.</p>
+            </button>
+            
+            <button class="w-full text-left p-3 bg-white rounded-md hover:bg-gray-50 transition duration-150 border border-gray-200" onclick="fillTemplate('We noticed you haven\'t been active recently. Log in to see new job opportunities!')">
+                <p class="font-medium text-secondary-800">Inactivity Notice</p>
+                <p class="text-sm text-secondary-600 truncate">We noticed you haven't been active recently. Log in to see new job opportunities!</p>
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+function fillTemplate(text) {
+    document.getElementById('message').value = text;
+    // Update character count if needed
+    const messageField = document.getElementById('message');
+    const maxLength = 160;
+    const currentLength = messageField.value.length;
+    
+    if (currentLength > maxLength) {
+        messageField.value = messageField.value.substring(0, maxLength);
+    }
+}
+</script>
+{% endblock %}

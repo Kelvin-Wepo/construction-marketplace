@@ -1,0 +1,239 @@
+{% extends "base.html" %}
+
+{% block title %}Conversation with {{ partner.email.split('@')[0] }} - Construction Marketplace{% endblock %}
+
+{% block content %}
+<div class="bg-white rounded-xl shadow-md overflow-hidden">
+    <div class="grid grid-cols-1 md:grid-cols-3 h-[700px]">
+        <!-- Conversations List -->
+        <div class="border-r border-gray-200 overflow-y-auto hidden md:block">
+            <div class="p-4 border-b border-gray-200">
+                <div class="relative">
+                    <input type="text" placeholder="Search messages..." class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <i class="fas fa-search text-gray-400"></i>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="divide-y divide-gray-200">
+                {% for conversation in conversations %}
+                <a href="{{ url_for('messaging.conversation', user_id=conversation.partner.id) }}" class="block p-4 hover:bg-gray-50 transition duration-150 {% if conversation.partner.id == partner.id %}bg-primary-50{% endif %}">
+                    <div class="flex items-start">
+                        <div class="w-10 h-10 bg-primary-100 text-primary-700 rounded-full flex items-center justify-center mr-3">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <div class="flex justify-between items-baseline">
+                                <h3 class="text-sm font-semibold text-secondary-800 truncate">{{ conversation.partner.email.split('@')[0] }}</h3>
+                                {% if conversation.latest_message %}
+                                <span class="text-xs text-secondary-500">{{ conversation.latest_message.created_at.strftime('%H:%M') }}</span>
+                                {% endif %}
+                            </div>
+                            {% if conversation.latest_message %}
+                            <p class="text-sm text-secondary-600 truncate {% if not conversation.latest_message.is_read and conversation.latest_message.receiver_id == current_user.id %}font-semibold{% endif %}">
+                                {% if conversation.latest_message.sender_id == current_user.id %}
+                                <span class="text-secondary-400">You: </span>
+                                {% endif %}
+                                {{ conversation.latest_message.content }}
+                            </p>
+                            {% else %}
+                            <p class="text-sm text-secondary-500 italic">No messages yet</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </a>
+                {% else %}
+                <div class="p-6 text-center">
+                    <p class="text-secondary-500">No conversations yet.</p>
+                    <p class="text-sm text-secondary-500 mt-1">Start by messaging a client or professional!</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        
+        <!-- Conversation -->
+        <div class="col-span-2 flex flex-col">
+            <!-- Conversation Header -->
+            <div class="p-4 border-b border-gray-200 flex justify-between items-center">
+                <div class="flex items-center">
+                    <a href="{{ url_for('messaging.index') }}" class="md:hidden text-secondary-500 mr-3">
+                        <i class="fas fa-arrow-left"></i>
+                    </a>
+                    <div class="w-10 h-10 bg-primary-100 text-primary-700 rounded-full flex items-center justify-center mr-3">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div>
+                        <h2 class="font-semibold text-secondary-800">{{ partner.email.split('@')[0] }}</h2>
+                        <p class="text-xs text-secondary-500">{{ partner.role.capitalize() }}</p>
+                    </div>
+                </div>
+                
+                <div>
+                    <button class="text-secondary-500 hover:text-secondary-700 p-2">
+                        <i class="fas fa-info-circle"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Messages -->
+            <div class="flex-1 p-4 overflow-y-auto chat-container bg-gray-50">
+                {% for message in messages %}
+                <div class="mb-4 {% if message.sender_id == current_user.id %}flex justify-end{% endif %}">
+                    <div class="{% if message.sender_id == current_user.id %}bg-primary-600 text-white{% else %}bg-white text-secondary-800{% endif %} rounded-lg px-4 py-2 max-w-[80%] shadow-sm">
+                        <p>{{ message.content }}</p>
+                        {% if message.attachment_url %}
+                        <div class="mt-2">
+                            <a href="{{ message.attachment_url }}" target="_blank" class="{% if message.sender_id == current_user.id %}bg-primary-700 hover:bg-primary-800{% else %}bg-gray-200 hover:bg-gray-300 text-secondary-800{% endif %} text-sm px-3 py-1 rounded inline-flex items-center">
+                                <i class="fas fa-paperclip mr-1"></i> Attachment
+                            </a>
+                        </div>
+                        {% endif %}
+                        <div class="text-xs {% if message.sender_id == current_user.id %}text-primary-200{% else %}text-secondary-500{% endif %} mt-1">
+                            {{ message.created_at.strftime('%H:%M') }}
+                        </div>
+                    </div>
+                </div>
+                {% else %}
+                <div class="text-center py-8">
+                    <p class="text-secondary-500">No messages yet. Start the conversation!</p>
+                </div>
+                {% endfor %}
+            </div>
+            
+            <!-- Message Input -->
+            <div class="p-4 border-t border-gray-200">
+                <form method="POST" action="{{ url_for('messaging.conversation', user_id=partner.id) }}" enctype="multipart/form-data" id="message-form">
+                    {{ form.hidden_tag() }}
+                    
+                    <input type="hidden" id="user-id" value="{{ current_user.id }}">
+                    <input type="hidden" id="partner-id" value="{{ partner.id }}">
+                    
+                    <div class="flex items-end space-x-2">
+                        <div class="flex-1">
+                            {{ form.content(class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500", placeholder="Type your message...", rows="3", id="content") }}
+                        </div>
+                        <div>
+                            <button type="button" class="bg-gray-200 hover:bg-gray-300 text-secondary-800 p-2 rounded-md" id="attachment-btn">
+                                <i class="fas fa-paperclip"></i>
+                            </button>
+                            {{ form.attachment(class="hidden", id="attachment-input") }}
+                        </div>
+                        <div>
+                            {{ form.submit(class="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-md font-medium transition duration-200") }}
+                        </div>
+                    </div>
+                    
+                    <div class="mt-2 flex justify-between items-center">
+                        <div>
+                            <span id="attachment-name" class="text-sm text-secondary-600 hidden">
+                                <i class="fas fa-paperclip mr-1"></i> <span></span>
+                                <button type="button" class="text-red-500 ml-2" id="remove-attachment">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </span>
+                        </div>
+                        
+                        <div>
+                            <label for="job_id" class="text-sm text-secondary-600 mr-2">Related Job:</label>
+                            {{ form.job_id(class="text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500") }}
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block scripts %}
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    // Scroll to bottom of chat
+    const chatContainer = document.querySelector(".chat-container");
+    chatContainer.scrollTop = chatContainer.scrollHeight;
+    
+    // Handle attachment button
+    const attachmentBtn = document.getElementById("attachment-btn");
+    const attachmentInput = document.getElementById("attachment-input");
+    const attachmentName = document.getElementById("attachment-name");
+    const attachmentNameText = attachmentName.querySelector("span");
+    const removeAttachment = document.getElementById("remove-attachment");
+    
+    attachmentBtn.addEventListener("click", function() {
+        attachmentInput.click();
+    });
+    
+    attachmentInput.addEventListener("change", function() {
+        if (this.files.length > 0) {
+            attachmentNameText.textContent = this.files[0].name;
+            attachmentName.classList.remove("hidden");
+        } else {
+            attachmentName.classList.add("hidden");
+        }
+    });
+    
+    removeAttachment.addEventListener("click", function() {
+        attachmentInput.value = "";
+        attachmentName.classList.add("hidden");
+    });
+    
+    // Socket.io connection
+    const socket = io();
+    const userId = document.getElementById("user-id").value;
+    const partnerId = document.getElementById("partner-id").value;
+    
+    // Join user's room
+    socket.on("connect", function() {
+        socket.emit("join", { room: `user_${userId}` });
+    });
+    
+    // Listen for new messages
+    socket.on("new_message", function(data) {
+        // Only add message if it's for the current conversation
+        if (data.sender_id == partnerId || data.receiver_id == partnerId) {
+            // Create message element
+            const messageDiv = document.createElement("div");
+            messageDiv.className = `mb-4 ${data.sender_id == userId ? 'flex justify-end' : ''}`;
+            
+            const messageBubble = document.createElement("div");
+            messageBubble.className = `${data.sender_id == userId ? 'bg-primary-600 text-white' : 'bg-white text-secondary-800'} rounded-lg px-4 py-2 max-w-[80%] shadow-sm`;
+            
+            const messageContent = document.createElement("p");
+            messageContent.textContent = data.content;
+            messageBubble.appendChild(messageContent);
+            
+            if (data.attachment_url) {
+                const attachmentDiv = document.createElement("div");
+                attachmentDiv.className = "mt-2";
+                
+                const attachmentLink = document.createElement("a");
+                attachmentLink.href = data.attachment_url;
+                attachmentLink.target = "_blank";
+                attachmentLink.className = `${data.sender_id == userId ? 'bg-primary-700 hover:bg-primary-800' : 'bg-gray-200 hover:bg-gray-300 text-secondary-800'} text-sm px-3 py-1 rounded inline-flex items-center`;
+                
+                const attachmentIcon = document.createElement("i");
+                attachmentIcon.className = "fas fa-paperclip mr-1";
+                
+                attachmentLink.appendChild(attachmentIcon);
+                attachmentLink.appendChild(document.createTextNode(" Attachment"));
+                
+                attachmentDiv.appendChild(attachmentLink);
+                messageBubble.appendChild(attachmentDiv);
+            }
+            
+            const messageTime = document.createElement("div");
+            messageTime.className = `text-xs ${data.sender_id == userId ? 'text-primary-200' : 'text-secondary-500'} mt-1`;
+            messageTime.textContent = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            messageBubble.appendChild(messageTime);
+            
+            messageDiv.appendChild(messageBubble);
+            chatContainer.appendChild(messageDiv);
+            
+            // Scroll to bottom
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+    });
+});
+</script>
+{% endblock %}
+{% endblock %}
